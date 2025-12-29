@@ -12,7 +12,7 @@ using System;
 
 namespace CoolCustomText.Source;
 
-public class CustomText
+public partial class CustomText
 {
     private readonly SpriteBatch _spriteBatch;
     private readonly float _lineHeight;
@@ -116,6 +116,10 @@ public class CustomText
     }
 
     #region Private methods
+
+    [GeneratedRegex(@"<fx\s+([0-9,]+)>(.*?)</fx>", RegexOptions.Singleline)]
+    private static partial Regex FxTextRegex();
+
     #region Output building related
 
     private string BuildOutput(List<string> words, List<int> subwordIdxsExcludingFirst, out List<int> addedChars)
@@ -218,7 +222,7 @@ public class CustomText
 
     private string BuildFxTexts(string text)
     {
-        Regex regex = new(@"<fx\s+([0-9,]+)>(.*?)</fx>", RegexOptions.Singleline);
+        Regex regex = FxTextRegex();
         var matches = regex.Matches(text);
         int ignoredCharCount = 0;
 
@@ -522,6 +526,12 @@ public class CustomText
     public void PreviousPage()
     {
         StartingLineIdx = AllowOverflow ? 0 : Math.Max(0, StartingLineIdx - _lineCapacity);
+    }
+
+    public Vector2 GetAutoDimension()
+    {
+        string cleanedText = FxTextRegex().Replace(Text, m => m.Groups[2].Value);
+        return (Font.MeasureString(cleanedText) + Padding * 2) / Scale;
     }
 
     #endregion
