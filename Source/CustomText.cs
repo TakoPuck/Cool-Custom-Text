@@ -534,10 +534,10 @@ public partial class CustomText
         StartingLineIdx = AllowOverflow ? 0 : Math.Max(0, StartingLineIdx - _lineCapacity);
     }
 
-    public Vector2 GetAutoDimension()
+    public void ResizeToSingleLineText()
     {
         string cleanedText = FxTextRegex().Replace(Text, m => m.Groups[2].Value);
-        return (Font.MeasureString(cleanedText) + Padding * 2) / Scale;
+        Dimension = Font.MeasureString(cleanedText) / Scale + Padding * 2;
     }
 
     #endregion
