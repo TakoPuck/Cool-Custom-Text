@@ -42,22 +42,24 @@ namespace CoolCustomText
 
             _customText = new(this, "PixellariFont", text, position, textDim)
             {
-                Scale = new(4f), // Scale the dimension. This is useful if you're working with scaled UI and want to have a coherent dimension.
+                Scale = new(4f), // Scale the dimension. This is useful if you're working with pixel art UI to match the pixel per unit and have the dimension (& padding) based on pixel art size.
                 Color = new(255, 244, 196),
-                Padding = new(20f, 0f),
+                Padding = new(5f, 0f),
                 ShadowColor = new(128, 85, 111), // By default it's Color.Transparent which disable it.
             };
-            // Don't forget to refresh the text after the initialization and after you change the text properties. (except related to overflow)
+            // Don't forget to refresh the text after the initialization and after you change the text properties except those related to overflow (see below).
             _customText.Refresh();
 
-            // When not allowing overflow, use the following methods to draw the overflowing text.
-            // Calling Refresh isn't necessary to apply your changes.
+            // When not allowing overflow, use the following methods to draw the overflowing text:
+            // Note that calling Refresh is not required to apply overflow changes.
             _customText.AllowOverflow = false;
 
+            // Page by page
             _customText.CurrentPageIdx = 0;
             _customText.NextPage();
             _customText.PreviousPage();
 
+            // Line by line
             _customText.StartingLineIdx = 0;
             _customText.NextStartingLine();
             _customText.PreviousStartingLine();
@@ -69,9 +71,8 @@ namespace CoolCustomText
                 "\nNewlines works\nperfectly too           (consecutives spaces        too).\n" +
                 "Finally to give a <fx 5,1,0,1,0>special effect</fx> to your text, use the fx tag by setting the profile of the specific effect " +
                 "(ignore effect with zero), the syntax is:\n" +
-                "< fx Color Palette profile,Wave profile,Shake profile,Hang profile>text< /fx>\n" +
-                "<fx 0,1,0,0,0>  ^</fx> ignore this space                                                 ignore this space <fx 0,1,0,0,0>^</fx>\n" +
-                "See README.md to know how to create new profiles.",
+                "<fx Color Palette, Wave profile, Shake pro., Hang pro., Side step pro.>text</fx>\n" +
+                "\nSee README.md to know how to create new profiles.",
                 position: new(40f, 310f), dimension: new(1200f, 92f), padding: new(0f, 10f), allowOverflow: true);
             _infoCustomText.Refresh();
 
@@ -124,8 +125,8 @@ namespace CoolCustomText
             Vector2 scale = t.Dimension * t.Scale;
 
             _spriteBatch.Draw(_pixelTex, t.Position, _pixelTex.Bounds, dimColor, 0f, Vector2.Zero, scale, SpriteEffects.None, 0f);
-            _spriteBatch.Draw(_pixelTex, t.Position + t.Padding, _pixelTex.Bounds, paddingColor, 0f, Vector2.Zero,
-                scale - 2 * t.Padding, SpriteEffects.None, 0f);
+            _spriteBatch.Draw(_pixelTex, t.Position + t.Padding * t.Scale, _pixelTex.Bounds, paddingColor, 0f, Vector2.Zero,
+                scale - 2 * t.Padding * t.Scale, SpriteEffects.None, 0f);
         }
     }
 }

@@ -37,6 +37,9 @@ public partial class CustomText
 
     public Vector2 ShadowOffset { get; set; }
 
+    /// <remarks>
+    /// Dimension is affected by <see cref="Scale"/>.
+    /// </remarks>
     public Vector2 Dimension { get; set; }
 
     /// <summary>
@@ -46,10 +49,13 @@ public partial class CustomText
 
     public Vector2 Offset { get; set; }
 
+    /// <remarks>
+    /// Padding is affected by <see cref="Scale"/>.
+    /// </remarks>
     public Vector2 Padding { get; set; }
 
     /// <summary>
-    /// The scale of the dimension, the font size and the padding aren't affected.
+    /// Scale of the dimension and the padding, the font size is not affected.
     /// </summary>
     /// <remarks>
     /// To change the font size, you need to edit your spritefont file.
@@ -132,7 +138,7 @@ public partial class CustomText
         {
             string testLine = line.Length == 0 ? words[i] : line + " " + words[i];
 
-            if (Font.MeasureString(testLine).X > Dimension.X * Scale.X - 2f * Padding.X)
+            if (Font.MeasureString(testLine).X > (Dimension.X - 2f * Padding.X) * Scale.X)
             {
                 if (i > 0) line.Append('\n');
 
@@ -177,7 +183,7 @@ public partial class CustomText
         {
             word.Append(c);
 
-            if (Font.MeasureString(word).X > Dimension.X * Scale.X - 2f * Padding.X)
+            if (Font.MeasureString(word).X > (Dimension.X - 2f * Padding.X) * Scale.X)
             {
                 word.Remove(word.Length - 1, 1);
                 words.Add(word.ToString());
@@ -201,7 +207,7 @@ public partial class CustomText
             float wordWidth = Font.MeasureString(word).X;
 
             // Slice words that are longer than a line.
-            if (wordWidth > Dimension.X * Scale.X - 2f * Padding.X)
+            if (wordWidth > (Dimension.X - 2f * Padding.X) * Scale.X)
             {
                 List<string> longWordsParts = SliceLongWord(word);
                 for (int i = 0; i < longWordsParts.Count; i++)
@@ -315,7 +321,7 @@ public partial class CustomText
     {
         LineCount = 1;
 
-        Vector2 nextCharPos = Position + Padding;
+        Vector2 nextCharPos = Position + Padding * Scale;
 
         for (int i = 0; i < _noFxTexts.Length; i++)
         {
@@ -332,13 +338,13 @@ public partial class CustomText
 
         for (int j = 1; j < lines.Length; j++)
         {
-            nextCharPos = new(Position.X + Padding.X, nextCharPos.Y + _lineHeight);
+            nextCharPos = new(Position.X + Padding.X * Scale.X, nextCharPos.Y + _lineHeight);
             LineCount++;
         }
 
         if (lines[^1] != string.Empty)
         {
-            float lastLineStartX = (lines.Length == 1) ? initialLineStartX : Position.X + Padding.X;
+            float lastLineStartX = (lines.Length == 1) ? initialLineStartX : Position.X + Padding.X * Scale.X;
             nextCharPos = new(lastLineStartX + Font.MeasureString(lines[^1]).X, nextCharPos.Y);
         }
 
@@ -413,7 +419,7 @@ public partial class CustomText
         // Draw the first line at the given nextCharPos.
         if (IsLineDrawable(_currentLineIdx) && lines[0] != string.Empty)
         {
-            Vector2 v = new(nextCharPos.X, Position.Y + Padding.Y + _lineHeight * (_currentLineIdx - StartingLineIdx));
+            Vector2 v = new(nextCharPos.X, Position.Y + Padding.Y * Scale.Y + _lineHeight * (_currentLineIdx - StartingLineIdx));
 
             if (fxText != null)
                 DrawFxTextLine(fxText, 0, v);
@@ -424,12 +430,12 @@ public partial class CustomText
         // Then, draw the subsequent lines at their respective positions.
         for (int j = 1; j < lines.Length; j++)
         {
-            nextCharPos = new(Position.X + Padding.X, nextCharPos.Y + _lineHeight);
+            nextCharPos = new(Position.X + Padding.X * Scale.X, nextCharPos.Y + _lineHeight);
             _currentLineIdx++;
 
             if (IsLineDrawable(_currentLineIdx) && lines[j] != string.Empty)
             {
-                Vector2 v = new(nextCharPos.X, Position.Y + Padding.Y + _lineHeight * (_currentLineIdx - StartingLineIdx));
+                Vector2 v = new(nextCharPos.X, Position.Y + Padding.Y * Scale.Y + _lineHeight * (_currentLineIdx - StartingLineIdx));
 
                 if (fxText != null)
                     DrawFxTextLine(fxText, j, v);
@@ -442,7 +448,7 @@ public partial class CustomText
         // if there's only one line, it started at initialLineStartX, otherwise, it started at the beginning of a line.
         if (lines[^1] != string.Empty)
         {
-            float lastLineStartX = (lines.Length == 1) ? initialLineStartX : Position.X + Padding.X;
+            float lastLineStartX = (lines.Length == 1) ? initialLineStartX : Position.X + Padding.X * Scale.X;
             nextCharPos = new(lastLineStartX + Font.MeasureString(lines[^1]).X, nextCharPos.Y);
         }
 
@@ -459,7 +465,7 @@ public partial class CustomText
     {
         _currentLineIdx = 0;
 
-        Vector2 nextCharPos = Position + Padding;
+        Vector2 nextCharPos = Position + Padding * Scale;
 
         // All no-fx texts are separated by an fx text.
         for (int i = 0; i < _noFxTexts.Length; i++)
