@@ -35,26 +35,30 @@ As you can see, one fx tag contains 5 numbers that define a profile for the effe
 Effects can be combine or can be ignored with 0.  
 Custom texts support newlines and consecutives spaces.
 
-Here, how to create and manage a custom text:  
+Here, an example to know everything about custom texts:  
 ```csharp
-string text = "This my <fx 2,0,0,1,0>cool custom text</fx> !";
-Vector2 textDim = new(284f, 60f);
-Vector2 position = new(50f, 50f);
+string text          = "Hello stranger, are you <fx 2,0,0,1,0>good</fx> <fx 0,1,0,0,0>?</fx>";
+Vector2 position     = new(25f);
+Vector2 padding      = new(5f, 0f); // (Width, Height)
+Vector2 textDim      = new(284f, 60f);// (Width, Height)
+Vector2 scale        = new(4f); // Scale the dimension and the padding to match pixels per unit from pixel art UI.
+Color color          = new(255, 244, 196);
+Color shadowColor    = new(128, 85, 111); // By default it's Color.Transparent which disable it.
+Vector2 shadowOffset = new(-2f, 2f);
+bool allowOverflow   = false; // Should the text overflows outside the box vertically ?
 
-_customText = new CustomText(this, "PixellariFont", text, position, textDim) // 'this' is Game1
-{
-    Scale = new(4f), // Scale the dimension. This is useful if you're working with pixel art UI to match the pixel per unit and have the dimension (& padding) based on pixel art size.
-    Color = new(255, 244, 196),
-    Padding = new(5f, 0f),
-    ShadowColor = new(128, 85, 111), // By default it's Color.Transparent which disable it.
-    // ShadowOffset can be changed too.
-};
-// Don't forget to refresh the text after the initialization and after you change the text properties except those related to overflow (see below).
+_customText = new(this, "PixellariFont", text, position, textDim, padding, scale, color, shadowColor, shadowOffset, allowOverflow);
+
+// Refresh should be call when editing the following properties:
+// Font - Text - Dimension - Position - Offset - Padding - Scale
+_customText.Position = new(50f);
 _customText.Refresh();
 
-// When not allowing overflow, use the following methods to draw the overflowing text:
-// Note that calling Refresh is not required to apply overflow changes.
-_customText.AllowOverflow = false;
+// Refresh should not be call when editing the following properties:
+// Color - ShadowColor - ShadowOffset - AllowOverflow - CurrentPageIdx - StartingLineIdx
+_customText.ShadowOffset = new(-4f, 4f);
+
+// If overflow is not allowed, use the following methods/properties to display the text:
 
 // Page by page
 _customText.CurrentPageIdx = 0;
