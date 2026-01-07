@@ -574,7 +574,7 @@ public partial class CustomText
         /// <summary>
         /// The different shake profiles. Add as many as you want by following the syntax below.
         /// </summary>
-        public static Dictionary<int, Tuple<float, float>> ShakeProfils = new()
+        public readonly static Dictionary<int, Tuple<float, float>> ShakeProfils = new()
         {
             // Shake Interval, Shake Strength
             [1] = new(0.06f, 3f),
@@ -583,7 +583,7 @@ public partial class CustomText
         /// <summary>
         /// The different hang profiles. Add as many as you want by following the syntax below.
         /// </summary>
-        public static Dictionary<int, Tuple<float, float>> HangProfils = new()
+        public readonly static Dictionary<int, Tuple<float, float>> HangProfils = new()
         {
             // Hang Frequency, Hang Amplitude
             [1] = new(6f, 12f)
@@ -592,7 +592,7 @@ public partial class CustomText
         /// <summary>
         /// The different side step profiles. Add as many as you want by following the syntax below.
         /// </summary>
-        public static Dictionary<int, Tuple<float, float>> SideStepProfils = new()
+        public readonly static Dictionary<int, Tuple<float, float>> SideStepProfils = new()
         {
             // Side Step Frequency, Side Step Amplitude
             [1] = new(6f, 12f),
