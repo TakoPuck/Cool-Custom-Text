@@ -47,8 +47,6 @@ public partial class CustomText
     /// </summary>
     public Vector2 Position { get; set; }
 
-    public Vector2 Offset { get; set; }
-
     /// <remarks>
     /// Padding is affected by <see cref="Scale"/>.
     /// </remarks>
@@ -102,23 +100,30 @@ public partial class CustomText
 
     #endregion
 
-    public CustomText(Game game, string fontName, string text, Vector2 position, Vector2 dimension, Vector2 offset = default, Vector2 padding = default,
+    public CustomText(Game game, string fontName, string text, Vector2 position, Vector2 dimension, Vector2 padding = default,
         Vector2? scale = null, Color? color = null, Color? shadowColor = null, Vector2? shadowOffset = null, bool allowOverflow = false)
+        : this(game.Services.GetService<SpriteBatch>(), game.Content.Load<SpriteFont>(fontName),
+        text, position, dimension, padding, scale, color, shadowColor, shadowOffset, allowOverflow)
+    { }
+
+    public CustomText(SpriteBatch sb, SpriteFont font, string text, Vector2 position, Vector2 dimension, Vector2 padding = default,
+    Vector2? scale = null, Color? color = null, Color? shadowColor = null, Vector2? shadowOffset = null, bool allowOverflow = false)
     {
-        Font = game.Content.Load<SpriteFont>(fontName);
         ShadowColor = shadowColor ?? Color.Transparent;
         ShadowOffset = shadowOffset ?? new(-4f, 4f);
+        Scale = scale ?? Vector2.One;
         Color = color ?? Color.White;
         AllowOverflow = allowOverflow;
         Dimension = dimension;
         Position = position;
         Padding = padding;
-        Offset = offset;
         Text = text;
-        Scale = scale ?? Vector2.One;
+        Font = font;
 
         _lineHeight = Font.MeasureString(" ").Y;
-        _spriteBatch = game.Services.GetService<SpriteBatch>();
+        _spriteBatch = sb;
+
+        Refresh();
     }
 
     #region Private methods
