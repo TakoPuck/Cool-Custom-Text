@@ -70,7 +70,7 @@ public partial class CustomText
 
     /// <summary>
     /// Index of the first drawn line.<br></br>
-    /// If <see cref="AllowOverflow"/> is disabled, then the value is always 0.
+    /// If <see cref="AllowOverflow"/> is enabled, then the value is always 0.
     /// </summary>
     public int StartingLineIdx
     {
@@ -82,11 +82,11 @@ public partial class CustomText
 
     public bool HasPreviousLine => StartingLineIdx > 0;
 
-    public int PageCount => _lineCapacity == 0 ? 0 : LineCount / _lineCapacity;
+    public int PageCount => _lineCapacity == 0 ? 0 : (LineCount + _lineCapacity - 1) / _lineCapacity;
 
     /// <summary>
     /// Index of the current drawn page.<br></br>
-    /// If <see cref="AllowOverflow"/> is disabled, then the value is always 0.
+    /// If <see cref="AllowOverflow"/> is enabled, then the value is always 0.
     /// </summary>
     public int CurrentPageIdx
     {
