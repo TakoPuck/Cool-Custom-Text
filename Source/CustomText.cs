@@ -1,7 +1,7 @@
-﻿/* * * * * * * * * * * * * * * * * * * * * * * * * * * *
- *  Author: TakoPuck (2025)                            *
- *  This code is open and free to use for any purpose. *
- * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+﻿/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ * Author : TakoPuck (2026)                                                        *
+ * Licence: You are free to use, modify, and distribute this code for any purpose. *
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 using Microsoft.Xna.Framework.Graphics;
 using System.Text.RegularExpressions;
@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using System.Text;
 using System;
+using System.Diagnostics;
 
 namespace CoolCustomText.Source;
 
@@ -17,6 +18,7 @@ public partial class CustomText
     private readonly SpriteBatch _spriteBatch;
     private readonly float _lineHeight;
 
+    private float[] _alignedLineStartsX;
     private string[][] _noFxTexts;
     private FxText[] _fxTexts;
     private float _time;
@@ -60,6 +62,8 @@ public partial class CustomText
     /// </remarks>
     public Vector2 Scale { get; set; }
 
+    public TextAlignment Alignment { get; set; }
+
     public bool AllowOverflow
     {
         get => _allowOverflow;
@@ -101,19 +105,20 @@ public partial class CustomText
     #endregion
 
     public CustomText(Game game, string fontName, string text, Vector2 position, Vector2 dimension, Vector2 padding = default,
-        Vector2? scale = null, Color? color = null, Color? shadowColor = null, Vector2? shadowOffset = null, bool allowOverflow = false)
+        Vector2? scale = null, Color? color = null, Color? shadowColor = null, Vector2? shadowOffset = null, bool allowOverflow = false, TextAlignment alignment = TextAlignment.Left)
         : this(game.Services.GetService<SpriteBatch>(), game.Content.Load<SpriteFont>(fontName),
-        text, position, dimension, padding, scale, color, shadowColor, shadowOffset, allowOverflow)
+        text, position, dimension, padding, scale, color, shadowColor, shadowOffset, allowOverflow, alignment)
     { }
 
     public CustomText(SpriteBatch sb, SpriteFont font, string text, Vector2 position, Vector2 dimension, Vector2 padding = default,
-    Vector2? scale = null, Color? color = null, Color? shadowColor = null, Vector2? shadowOffset = null, bool allowOverflow = false)
+        Vector2? scale = null, Color? color = null, Color? shadowColor = null, Vector2? shadowOffset = null, bool allowOverflow = false, TextAlignment alignment = TextAlignment.Left)
     {
         ShadowColor = shadowColor ?? Color.Transparent;
         ShadowOffset = shadowOffset ?? new(-4f, 4f);
         Scale = scale ?? Vector2.One;
         Color = color ?? Color.White;
         AllowOverflow = allowOverflow;
+        Alignment = alignment;
         Dimension = dimension;
         Position = position;
         Padding = padding;
@@ -322,40 +327,72 @@ public partial class CustomText
         _noFxTexts[^1] = output.Substring(startIdx).Split('\n');
     }
 
-    public void CountLines()
-    {
-        LineCount = 1;
+    #region Text alignment
 
-        Vector2 nextCharPos = Position + Padding * Scale;
+    private string[] GetSimulatedText()
+    {
+        List<StringBuilder> simulatedText = [];
 
         for (int i = 0; i < _noFxTexts.Length; i++)
         {
-            nextCharPos = CountPartLines(_noFxTexts[i], nextCharPos);
+            SimulateTextPart(_noFxTexts[i], simulatedText);
 
-            if (_fxTexts.Length > 0 && i < _fxTexts.Length)
-                nextCharPos = CountPartLines(_fxTexts[i].Lines, nextCharPos);
+            if (i < _fxTexts.Length)
+            {
+                SimulateTextPart(_fxTexts[i].Lines, simulatedText);
+            }
         }
+
+        // Build result
+        string[] result = new string[simulatedText.Count];
+        int lineIdx = 0;
+        simulatedText.ForEach(sb => result[lineIdx++] = sb.ToString());
+
+        return result;
     }
 
-    private Vector2 CountPartLines(string[] lines, Vector2 nextCharPos)
+    private static void SimulateTextPart(string[] lines, List<StringBuilder> simulatedText)
     {
-        float initialLineStartX = nextCharPos.X;
-
-        for (int j = 1; j < lines.Length; j++)
+        if (simulatedText.Count == 0)
         {
-            nextCharPos = new(Position.X + Padding.X * Scale.X, nextCharPos.Y + _lineHeight);
-            LineCount++;
+            simulatedText.Add(new());
         }
 
-        if (lines[^1] != string.Empty)
-        {
-            float lastLineStartX = (lines.Length == 1) ? initialLineStartX : Position.X + Padding.X * Scale.X;
-            nextCharPos = new(lastLineStartX + Font.MeasureString(lines[^1]).X, nextCharPos.Y);
-        }
+        simulatedText[^1].Append(lines[0]);
 
-        return nextCharPos;
+        for (int i = 1; i < lines.Length; i++)
+        {
+            simulatedText.Add(new(lines[i]));
+        }
     }
 
+    private void ComputeAlignedLineStartsX()
+    {
+        string[] lines = GetSimulatedText();
+
+        _alignedLineStartsX = new float[lines.Length];
+
+        for (int i = 0; i < lines.Length; i++)
+        {
+            _alignedLineStartsX[i] = GetAlignedLineStartX(lines[i]);
+        }
+    }
+
+    private float GetAlignedLineStartX(string line)
+    {
+        float lineWidth = Font.MeasureString(line).X;
+        float boxWidth = (Dimension.X - 2f * Padding.X) * Scale.X;
+        float baseX = Position.X + Padding.X * Scale.X;
+
+        return Alignment switch
+        {
+            TextAlignment.Center => baseX + (boxWidth - lineWidth) / 2f,
+            TextAlignment.Right => baseX + (boxWidth - lineWidth),
+            _ => baseX // Left
+        };
+    }
+
+    #endregion
     #endregion
     #region Draw related
 
@@ -417,47 +454,42 @@ public partial class CustomText
         _spriteBatch.DrawString(Font, text, position, color, rotation, origin, 1f, SpriteEffects.None, 0f);
     }
 
-    private Vector2 DrawLines(string[] lines, Vector2 nextCharPos, FxText fxText = null)
+    private float DrawLines(string[] lines, float nextLineStartX, FxText fxText = null)
     {
-        float initialLineStartX = nextCharPos.X;
+        float initialLineStartX = nextLineStartX;
+        Vector2 nextCharPos;
 
-        // Draw the first line at the given nextCharPos.
-        if (IsLineDrawable(_currentLineIdx) && lines[0] != string.Empty)
+        for (int i = 0; i < lines.Length; i++)
         {
-            Vector2 v = new(nextCharPos.X, Position.Y + Padding.Y * Scale.Y + _lineHeight * (_currentLineIdx - StartingLineIdx));
+            if (i > 0) _currentLineIdx++;
 
-            if (fxText != null)
-                DrawFxTextLine(fxText, 0, v);
-            else
-                DrawString(lines[0], v, Color);
-        }
-
-        // Then, draw the subsequent lines at their respective positions.
-        for (int j = 1; j < lines.Length; j++)
-        {
-            nextCharPos = new(Position.X + Padding.X * Scale.X, nextCharPos.Y + _lineHeight);
-            _currentLineIdx++;
-
-            if (IsLineDrawable(_currentLineIdx) && lines[j] != string.Empty)
+            nextCharPos = new()
             {
-                Vector2 v = new(nextCharPos.X, Position.Y + Padding.Y * Scale.Y + _lineHeight * (_currentLineIdx - StartingLineIdx));
+                X = (i == 0) ? initialLineStartX : _alignedLineStartsX[_currentLineIdx],
+                Y = Position.Y + Padding.Y * Scale.Y + _lineHeight * (_currentLineIdx - StartingLineIdx)
+            };
 
+            if (IsLineDrawable(_currentLineIdx) && lines[i] != string.Empty)
+            {
                 if (fxText != null)
-                    DrawFxTextLine(fxText, j, v);
+                {
+                    DrawFxTextLine(fxText, i, nextCharPos);
+                }
                 else
-                    DrawString(lines[j], v, Color);
+                {
+                    DrawString(lines[i], nextCharPos, Color);
+                }
             }
         }
 
-        // Finally, determine the start X of the last drawn line to get the next char position:
-        // if there's only one line, it started at initialLineStartX, otherwise, it started at the beginning of a line.
-        if (lines[^1] != string.Empty)
+        if (lines[^1] == string.Empty)
         {
-            float lastLineStartX = (lines.Length == 1) ? initialLineStartX : Position.X + Padding.X * Scale.X;
-            nextCharPos = new(lastLineStartX + Font.MeasureString(lines[^1]).X, nextCharPos.Y);
+            return _alignedLineStartsX[_currentLineIdx];
         }
 
-        return nextCharPos;
+        float lastLineStartX = (lines.Length == 1) ? initialLineStartX : _alignedLineStartsX[_currentLineIdx];
+        
+        return lastLineStartX + Font.MeasureString(lines[^1]).X;
     }
 
     private bool IsLineDrawable(int lineIdx) => AllowOverflow || ((lineIdx >= StartingLineIdx) && (lineIdx < StartingLineIdx + _lineCapacity));
@@ -470,17 +502,19 @@ public partial class CustomText
     {
         _currentLineIdx = 0;
 
-        Vector2 nextCharPos = Position + Padding * Scale;
+        float nextLineStartX = _alignedLineStartsX[0];
 
         // All no-fx texts are separated by an fx text.
         for (int i = 0; i < _noFxTexts.Length; i++)
         {
             // Draw no-fx lines.
-            nextCharPos = DrawLines(_noFxTexts[i], nextCharPos);
+            nextLineStartX = DrawLines(_noFxTexts[i], nextLineStartX);
 
             // Then draw fx lines, if any.
-            if (_fxTexts.Length > 0 && i < _fxTexts.Length)
-                nextCharPos = DrawLines(_fxTexts[i].Lines, nextCharPos, _fxTexts[i]);
+            if (i < _fxTexts.Length)
+            {
+                nextLineStartX = DrawLines(_fxTexts[i].Lines, nextLineStartX, _fxTexts[i]);
+            }
         }
     }
 
@@ -513,8 +547,10 @@ public partial class CustomText
 
         BuildNoFxTexts(output);
 
-        CountLines();
+        ComputeAlignedLineStartsX();
+
         StartingLineIdx = 0;
+        LineCount = _alignedLineStartsX.Length;
         _lineCapacity = (int)(Dimension.Y * Scale.Y / _lineHeight);
     }
 
@@ -537,12 +573,6 @@ public partial class CustomText
     public void PreviousPage()
     {
         StartingLineIdx = AllowOverflow ? 0 : Math.Max(0, StartingLineIdx - _lineCapacity);
-    }
-
-    public void ResizeToSingleLineText()
-    {
-        string cleanedText = FxTextRegex().Replace(Text, m => m.Groups[2].Value);
-        Dimension = Font.MeasureString(cleanedText) / Scale + Padding * 2;
     }
 
     #endregion
@@ -579,7 +609,7 @@ public partial class CustomText
         /// <summary>
         /// The different shake profiles. Add as many as you want by following the syntax below.
         /// </summary>
-        public readonly static Dictionary<int, Tuple<float, float>> ShakeProfils = new()
+        private readonly static Dictionary<int, Tuple<float, float>> ShakeProfils = new()
         {
             // Shake Interval, Shake Strength
             [1] = new(0.06f, 3f),
@@ -588,7 +618,7 @@ public partial class CustomText
         /// <summary>
         /// The different hang profiles. Add as many as you want by following the syntax below.
         /// </summary>
-        public readonly static Dictionary<int, Tuple<float, float>> HangProfils = new()
+        private readonly static Dictionary<int, Tuple<float, float>> HangProfils = new()
         {
             // Hang Frequency, Hang Amplitude
             [1] = new(6f, 12f)
@@ -597,7 +627,7 @@ public partial class CustomText
         /// <summary>
         /// The different side step profiles. Add as many as you want by following the syntax below.
         /// </summary>
-        public readonly static Dictionary<int, Tuple<float, float>> SideStepProfils = new()
+        private readonly static Dictionary<int, Tuple<float, float>> SideStepProfils = new()
         {
             // Side Step Frequency, Side Step Amplitude
             [1] = new(6f, 12f),

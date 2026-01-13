@@ -5,13 +5,9 @@
 
 namespace CoolCustomText.Source;
 
-public enum ColorPalette
+public enum TextAlignment
 {
-    Rainbow,
-    SoftCandy,
-    SoftPurple,
-    Retro,
-    Elemental,
-    White,
-    TenMovingRed
+    Left,
+    Center,
+    Right,
 }

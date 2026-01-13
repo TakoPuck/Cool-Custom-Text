@@ -1,7 +1,7 @@
-﻿/* * * * * * * * * * * * * * * * * * * * * * * * * * * *
- *  Author: TakoPuck (2025)                            *
- *  This code is open and free to use for any purpose. *
- * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+﻿/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ * Author : TakoPuck (2026)                                                        *
+ * Licence: You are free to use, modify, and distribute this code for any purpose. *
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 using Microsoft.Xna.Framework;
 using System.Collections.Generic;

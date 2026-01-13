@@ -8,6 +8,15 @@ Features:
 * Apply special FX tags to style or animate parts of your text
 * Customizable text shadow (color and offset)
 * Handle text overflow seamlessly, with support for line-by-line or page-by-page display modes
+* Text alignment: Left, Center or Right
+
+---
+
+## Changelog
+
+1. Overflow managing
+2. Side Step effect
+3. Text alignment
 
 ---
 
@@ -28,29 +37,31 @@ string text = "Hello stranger, are you <fx 2,0,0,1,0>good</fx> ?\n<fx 1,1,0,0,0>
 ```
 
 As you can see, one fx tag contains 5 numbers that define a profile for the effect:  
-<fx Color Palette, Wave, Shake, Hang, Side Step>  
+`<fx Color Palette, Wave, Shake, Hang, Side Step>`
 
 ![Effects visual example](Docs/Effects.gif "Effects visual exemple")
 
 Effects can be combine or can be ignored with 0.  
-Custom texts support newlines and consecutives spaces.
+
+Custom texts support newlines (`\n`) and consecutives spaces.
 
 Here, an example to know everything about custom texts:  
 ```csharp
-string text          = "Hello stranger, are you <fx 2,0,0,1,0>good</fx> <fx 0,1,0,0,0>?</fx>";
-Vector2 position     = new(25f);
-Vector2 padding      = new(5f, 0f); // (Width, Height)
-Vector2 textDim      = new(284f, 60f);// (Width, Height)
-Vector2 scale        = new(4f); // Scale the dimension and the padding to match pixels per unit from pixel art UI.
-Color color          = new(255, 244, 196);
-Color shadowColor    = new(128, 85, 111); // By default it's Color.Transparent which disable it.
-Vector2 shadowOffset = new(-2f, 2f);
-bool allowOverflow   = false; // Should the text overflows outside the box vertically ?
+string text             = "Hello stranger, are you <fx 2,0,0,1,0>good</fx> <fx 0,1,0,0,0>?</fx>";
+Vector2 position        = new(25f);
+Vector2 padding         = new(5f, 0f); // (Width, Height)
+Vector2 textDim         = new(284f, 60f);// (Width, Height)
+Vector2 scale           = new(4f); // Scale the dimension and the padding to match pixels per unit from pixel art UI.
+Color color             = new(255, 244, 196);
+Color shadowColor       = new(128, 85, 111); // By default it's Color.Transparent which disable it.
+Vector2 shadowOffset    = new(-2f, 2f);
+bool allowOverflow      = false; // Should the text overflows outside the box vertically ?
+TextAlignment alignment = TextAlignment.Left;
 
-_customText = new(this, "PixellariFont", text, position, textDim, padding, scale, color, shadowColor, shadowOffset, allowOverflow);
+_customText = new(this, "PixellariFont", text, position, textDim, padding, scale, color, shadowColor, shadowOffset, allowOverflow, alignment);
 
 // Refresh should be call when editing the following properties:
-// Font - Text - Dimension - Position - Offset - Padding - Scale
+// Font - Text - Dimension - Position - Offset - Padding - Scale - Alignment
 _customText.Position = new(50f);
 _customText.Refresh();
 
@@ -117,7 +128,7 @@ private readonly static Dictionary<int, Tuple<float, float>> WaveProfils = new()
 };
 
 // Shake profiles
-public static Dictionary<int, Tuple<float, float>> ShakeProfils = new()
+private readonly Dictionary<int, Tuple<float, float>> ShakeProfils = new()
 {
     // Shake Interval, Shake Strength
     [1] = new(0.06f, 3f),
@@ -125,7 +136,7 @@ public static Dictionary<int, Tuple<float, float>> ShakeProfils = new()
 };
 
 // Hang profiles
-public static Dictionary<int, Tuple<float, float>> HangProfils = new()
+private readonly Dictionary<int, Tuple<float, float>> HangProfils = new()
 {
     // Hang Frequency, Hang Amplitude
     [1] = new(6f, 12f),
@@ -133,7 +144,7 @@ public static Dictionary<int, Tuple<float, float>> HangProfils = new()
 };
 
 // Side Step profiles
-public static Dictionary<int, Tuple<float, float>> SideStepProfils = new()
+private readonly Dictionary<int, Tuple<float, float>> SideStepProfils = new()
 {
     // Side Step Frequency, Side Step Amplitude
     [1] = new(6f, 12f),
@@ -148,4 +159,5 @@ Profiles are stored in the class `PaletteRotator`, don't forget to add the name 
 
 ## License
 
-Free to use for any purpose. 
+You are free to use, modify, and distribute this code for any purpose.
+

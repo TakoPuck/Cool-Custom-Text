@@ -1,7 +1,7 @@
-﻿/* * * * * * * * * * * * * * * * * * * * * * * * * * * *
- *  Author: TakoPuck (2025)                            *
- *  This code is open and free to use for any purpose. *
- * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+﻿/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ * Author : TakoPuck (2026)                                                        *
+ * Licence: You are free to use, modify, and distribute this code for any purpose. *
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 using CoolCustomText.Source;
 using Microsoft.Xna.Framework;
@@ -37,20 +37,21 @@ namespace CoolCustomText
 
             /* Examples of using Custom Text */
 
-            string text          = "Hello stranger, are you <fx 2,0,0,1,0>good</fx> <fx 0,1,0,0,0>?</fx>\n<fx 1,1,0,0,0>*************************************</fx><fx 6,0,1,0,0>This line is scared</fx> <fx 6,0,0,0,1>></fx> <fx 7,0,0,0,0>0123456789</fx> <fx 6,0,0,0,2><</fx>";
-            Vector2 position     = new(25f);
-            Vector2 padding      = new(5f, 0f); // (Width, Height)
-            Vector2 textDim      = new(284f, 60f);// (Width, Height)
-            Vector2 scale        = new(4f); // Scale the dimension and the padding to match pixels per unit from pixel art UI.
-            Color color          = new(255, 244, 196);
-            Color shadowColor    = new(128, 85, 111); // By default it's Color.Transparent which disable it.
-            Vector2 shadowOffset = new(-2f, 2f);
-            bool allowOverflow   = false; // Should the text overflows outside the box vertically ?
+            string text             = "Hello stranger, are you <fx 2,0,0,1,0>good</fx> <fx 0,1,0,0,0>?</fx>\n<fx 1,1,0,0,0>*************************************</fx><fx 6,0,1,0,0>This line is scared</fx> <fx 6,0,0,0,1>></fx> <fx 7,0,0,0,0>0123456789</fx> <fx 6,0,0,0,2><</fx>";
+            Vector2 position        = new(25f);
+            Vector2 padding         = new(5f, 0f); // (Width, Height)
+            Vector2 textDim         = new(284f, 60f);// (Width, Height)
+            Vector2 scale           = new(4f); // Scale the dimension and the padding to match pixels per unit from pixel art UI.
+            Color color             = new(255, 244, 196);
+            Color shadowColor       = new(128, 85, 111); // By default it's Color.Transparent which disable it.
+            Vector2 shadowOffset    = new(-2f, 2f);
+            bool allowOverflow      = false; // Should the text overflows outside the box vertically ?
+            TextAlignment alignment = TextAlignment.Center;
 
-            _customText = new(this, "PixellariFont", text, position, textDim, padding, scale, color, shadowColor, shadowOffset, allowOverflow);
+            _customText = new(this, "PixellariFont", text, position, textDim, padding, scale, color, shadowColor, shadowOffset, allowOverflow, alignment);
 
             // Refresh should be call when editing the following properties:
-            // Font - Text - Dimension - Position - Offset - Padding - Scale
+            // Font - Text - Dimension - Position - Offset - Padding - Scale - Alignment
             _customText.Position = new(50f);
             _customText.Refresh();
 
@@ -72,14 +73,23 @@ namespace CoolCustomText
 
 
             _infoCustomText = new(this, "SmallPixellariFont",
-                "The gray box represents the dimension of the custom text but\nthe input text is rendered into the green box because we have set a padding.\n" +
-                "Overflow is allowed here, but by default it isn't and you have to called NextPage or NextStartingLine to draw the overflowing text. " +
-                "\nNewlines works\nperfectly too           (consecutives spaces        too).\n" +
-                "Finally to give a <fx 5,1,0,1,0>special effect</fx> to your text, use the fx tag by setting the profile of the specific effect " +
-                "(ignore effect with zero), the syntax is:\n" +
-                "<fx Color Palette, Wave profile, Shake pro., Hang pro., Side step pro.>text</fx>\n" +
-                "\nSee README.md to know how to create new profiles.",
-                position: new(40f, 310f), dimension: new(1200f, 92f), padding: new(0f, 10f), allowOverflow: true);
+                "The gray box represents the text dimension.\n" +
+                "The text itself is rendered inside the green box because padding is applied.\n" +
+                "Overflow is enabled here, allowing the text to exceed the vertical bounds.\n" +
+                "All lines in this example are centered.\n" +
+                "Both of these behaviors can be changed.\n" +
+                "Newlines work as expected, and so do      consecutive spaces.\n" +
+                "To apply a <fx 5,1,0,1,0>special effect</fx> to part of the text, use the fx tag\n" +
+                "and configure the desired effect profiles (use zero to ignore an effect).\n" +
+                "FX tag syntax:\n" +
+                "<fx Color Palette profile, Wave profile, Shake p., Hang p., Side Step p.>text</fx>\n" +
+                "<fx 3,0,0,0,0>See README.md to learn everything about custom texts.</fx>",
+                position: new(40f, 310f),
+                dimension: new(1200f, 92f),
+                padding: new(0f, 10f),
+                allowOverflow: true,
+                alignment: TextAlignment.Center
+            );
 
             base.Initialize();
         }
