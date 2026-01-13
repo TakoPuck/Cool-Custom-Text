@@ -132,10 +132,18 @@ public partial class CustomText
     }
 
     #region Private methods
+    #region Regex
 
     [GeneratedRegex(@"<fx\s+([0-9,]+)>(.*?)</fx>", RegexOptions.Singleline)]
     private static partial Regex FxTextRegex();
 
+    [GeneratedRegex(@"^( )")]
+    private static partial Regex StartWithSpaceRegex();
+
+    [GeneratedRegex(@"(<fx\s+\d(,\d){4}> )")]
+    private static partial Regex StartWithFxSpaceRegex();
+
+    #endregion
     #region Output building related
 
     private string BuildOutput(List<string> words, List<int> subwordIdxsExcludingFirst, out List<int> addedChars)
@@ -281,6 +289,17 @@ public partial class CustomText
             sb.Append((!Font.Characters.Contains(c) && (c != '\n')) ? '?' : c);
 
         return sb.ToString();
+    }
+
+    private static string FixStartingSpace(string text)
+    {
+        if (!string.IsNullOrEmpty(text))
+        {
+            text = StartWithSpaceRegex().Replace(text, "<fx 8,0,0,0,0>'</fx>");
+            text = StartWithFxSpaceRegex().Replace(text, m => string.Concat("<fx 8,0,0,0,0>'</fx>", m.Value.AsSpan(0, m.Value.Length - 1)));
+        }
+
+        return text;
     }
 
     #endregion
@@ -528,7 +547,8 @@ public partial class CustomText
 
     public void Refresh()
     {
-        string filteredText = FilterUnsupportedChars(Text);
+        string safeText = FixStartingSpace(Text); // Workaround: Replace first leading space with a transparent fx tag to avoid crashes...
+        string filteredText = FilterUnsupportedChars(safeText);
         string noTagsText = BuildFxTexts(filteredText);
         string[] rawWords = noTagsText.Split(' ');
 
@@ -594,8 +614,9 @@ public partial class CustomText
             [4] = new(ColorPalette.SoftPurple, 0.075f),
             [5] = new(ColorPalette.Retro, 0.075f),
             [6] = new(ColorPalette.White, 0.075f),
-            [7] = new(ColorPalette.TenMovingRed, 0.125f)
-        };
+            [7] = new(ColorPalette.TenMovingRed, 0.125f),
+            [8] = new(ColorPalette.Transparent, 0f)
+        }; 
 
         /// <summary>
         /// The different wave profiles. Add as many as you want by following the syntax below.

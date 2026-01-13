@@ -84,6 +84,10 @@ public class PaletteRotator(ColorPalette colorPalette, float rotationTime)
             Color.Transparent,
             Color.Transparent,
             new(255, 0, 0)
+        ],
+        [ColorPalette.Transparent] =
+        [
+            Color.Transparent
         ]
     };
 

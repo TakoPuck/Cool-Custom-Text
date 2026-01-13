@@ -37,7 +37,7 @@ namespace CoolCustomText
 
             /* Examples of using Custom Text */
 
-            string text             = "Hello stranger, are you <fx 2,0,0,1,0>good</fx> <fx 0,1,0,0,0>?</fx>\n<fx 1,1,0,0,0>*************************************</fx><fx 6,0,1,0,0>This line is scared</fx> <fx 6,0,0,0,1>></fx> <fx 7,0,0,0,0>0123456789</fx> <fx 6,0,0,0,2><</fx>";
+            string text = "Hello stranger, are you <fx 2,0,0,1,0>good</fx> <fx 0,1,0,0,0>?</fx>\n<fx 1,1,0,0,0>*************************************</fx><fx 6,0,1,0,0>This line is scared</fx> <fx 6,0,0,0,1>></fx> <fx 7,0,0,0,0>0123456789</fx> <fx 6,0,0,0,2><</fx>";
             Vector2 position        = new(25f);
             Vector2 padding         = new(5f, 0f); // (Width, Height)
             Vector2 textDim         = new(284f, 60f);// (Width, Height)

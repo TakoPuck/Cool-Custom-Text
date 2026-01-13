@@ -13,5 +13,6 @@ public enum ColorPalette
     Retro,
     Elemental,
     White,
-    TenMovingRed
+    TenMovingRed,
+    Transparent
 }
