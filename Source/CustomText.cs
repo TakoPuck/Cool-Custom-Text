@@ -9,7 +9,6 @@ using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using System.Text;
 using System;
-using System.Diagnostics;
 
 namespace CoolCustomText.Source;
 
@@ -134,13 +133,13 @@ public partial class CustomText
     #region Private methods
     #region Regex
 
-    [GeneratedRegex(@"<fx\s+([0-9,]+)>(.*?)</fx>", RegexOptions.Singleline)]
+    [GeneratedRegex(@"<fx\s+(\d+),(\d+),(\d+),(\d+),(\d+)>(.*?)</fx>", RegexOptions.Singleline)]
     private static partial Regex FxTextRegex();
 
     [GeneratedRegex(@"^( )")]
     private static partial Regex StartWithSpaceRegex();
 
-    [GeneratedRegex(@"(<fx\s+\d(,\d){4}> )")]
+    [GeneratedRegex(@"^(<fx\s+\d+,\d+,\d+,\d+,\d+>)(\s)(.*?</fx>)")]
     private static partial Regex StartWithFxSpaceRegex();
 
     #endregion
@@ -257,20 +256,14 @@ public partial class CustomText
         {
             Match m = matches[i];
 
-            string[] values = m.Groups[1].Value.Split(',');
-            string innerText = m.Groups[2].Value;
-
             int startIdx = m.Index - ignoredCharCount;
-            int colorProfil = 0, waveProfil = 0, shakeProfil = 0, hangProfil = 0, sideStepProfil = 0;
 
-            if (values.Length == 5)
-            {
-                _ = int.TryParse(values[0], out colorProfil);
-                _ = int.TryParse(values[1], out waveProfil);
-                _ = int.TryParse(values[2], out shakeProfil);
-                _ = int.TryParse(values[3], out hangProfil);
-                _ = int.TryParse(values[4], out sideStepProfil);
-            }
+            int colorProfil    = int.Parse(m.Groups[1].Value);
+            int waveProfil     = int.Parse(m.Groups[2].Value);
+            int shakeProfil    = int.Parse(m.Groups[3].Value);
+            int hangProfil     = int.Parse(m.Groups[4].Value);
+            int sideStepProfil = int.Parse(m.Groups[5].Value);
+            string innerText   = m.Groups[6].Value;
 
             _fxTexts[i] = new(startIdx, innerText.Length, colorProfil, waveProfil, shakeProfil, hangProfil, sideStepProfil);
 
@@ -278,7 +271,7 @@ public partial class CustomText
         }
 
         // Return the text without fx tags.
-        return regex.Replace(text, m => m.Groups[2].Value);
+        return regex.Replace(text, m => m.Groups[6].Value);
     }
 
     private string FilterUnsupportedChars(string text)
@@ -295,8 +288,8 @@ public partial class CustomText
     {
         if (!string.IsNullOrEmpty(text))
         {
-            text = StartWithSpaceRegex().Replace(text, "<fx 8,0,0,0,0>'</fx>");
-            text = StartWithFxSpaceRegex().Replace(text, m => string.Concat("<fx 8,0,0,0,0>'</fx>", m.Value.AsSpan(0, m.Value.Length - 1)));
+            text = StartWithSpaceRegex().Replace(text, "<fx 8,0,0,0,0>.</fx>");
+            text = StartWithFxSpaceRegex().Replace(text, m => string.Concat("<fx 8,0,0,0,0>.</fx>", m.Groups[1].Value, m.Groups[3].Value));
         }
 
         return text;
@@ -501,13 +494,13 @@ public partial class CustomText
             }
         }
 
-        if (lines[^1] == string.Empty)
+        if (lines[^1] == string.Empty && lines.Length > 1)
         {
             return _alignedLineStartsX[_currentLineIdx];
         }
 
         float lastLineStartX = (lines.Length == 1) ? initialLineStartX : _alignedLineStartsX[_currentLineIdx];
-        
+
         return lastLineStartX + Font.MeasureString(lines[^1]).X;
     }
 
