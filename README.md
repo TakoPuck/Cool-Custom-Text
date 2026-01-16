@@ -61,7 +61,7 @@ TextAlignment alignment = TextAlignment.Left;
 _customText = new(this, "PixellariFont", text, position, textDim, padding, scale, color, shadowColor, shadowOffset, allowOverflow, alignment);
 
 // Refresh should be call when editing the following properties:
-// Font - Text - Dimension - Position - Offset - Padding - Scale - Alignment
+// Font - Text - Dimension - Position - Padding - Scale - Alignment
 _customText.Position = new(50f);
 _customText.Refresh();
 
