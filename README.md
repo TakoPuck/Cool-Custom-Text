@@ -31,7 +31,7 @@ _This font was made by Zacchary Dempsey-Plante: https://www.dafont.com/fr/pixell
 ## Syntax and Application
 
 To apply an effect to a specific part of the text, we use XML-like tag called 'fx'.  
-In the visual exemple above the input text looks like this :  
+In the visual example above, the input text looks like this :  
 ```csharp
 string text = "Hello stranger, are you <fx 2,0,0,1,0>good</fx> ?\n<fx 1,1,0,0,0>*************************************</fx><fx 6,0,1,0,0>This line is scared</fx> <fx 6,1,0,0,0>></fx><fx 7,0,0,0,0>0123456789</fx><fx 6,1,0,0,0><</fx>";
 ```
