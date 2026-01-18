@@ -69,8 +69,6 @@ public partial class CustomText
         set { _allowOverflow = value; StartingLineIdx = 0; }
     }
 
-    public int LineCount { get; private set; }
-
     /// <summary>
     /// Index of the first drawn line.<br></br>
     /// If <see cref="AllowOverflow"/> is enabled, then the value is always 0.
@@ -80,12 +78,6 @@ public partial class CustomText
         get => _startingLineIdx;
         set { _startingLineIdx = AllowOverflow ? 0 : Math.Clamp(value, 0, Math.Max(0, LineCount - 1)); }
     }
-
-    public bool HasNextLine => StartingLineIdx < LineCount - 1;
-
-    public bool HasPreviousLine => StartingLineIdx > 0;
-
-    public int PageCount => _lineCapacity == 0 ? 0 : (LineCount + _lineCapacity - 1) / _lineCapacity;
 
     /// <summary>
     /// Index of the current drawn page.<br></br>
@@ -97,36 +89,37 @@ public partial class CustomText
         set => StartingLineIdx = value * _lineCapacity;
     }
 
+    public int LineCount { get; private set; }
+
+    public bool HasNextLine => StartingLineIdx < LineCount - 1;
+
+    public bool HasPreviousLine => StartingLineIdx > 0;
+
+    public int PageCount => _lineCapacity == 0 ? 0 : (LineCount + _lineCapacity - 1) / _lineCapacity;
+
     public bool HasNextPage => CurrentPageIdx < PageCount - 1;
 
     public bool HasPreviousPage => CurrentPageIdx > 0;
 
     #endregion
 
-    public CustomText(Game game, string fontName, string text, Vector2 position, Vector2 dimension, Vector2 padding = default,
-        Vector2? scale = null, Color? color = null, Color? shadowColor = null, Vector2? shadowOffset = null, bool allowOverflow = false, TextAlignment alignment = TextAlignment.Left)
-        : this(game.Services.GetService<SpriteBatch>(), game.Content.Load<SpriteFont>(fontName),
-        text, position, dimension, padding, scale, color, shadowColor, shadowOffset, allowOverflow, alignment)
-    { }
-
-    public CustomText(SpriteBatch sb, SpriteFont font, string text, Vector2 position, Vector2 dimension, Vector2 padding = default,
-        Vector2? scale = null, Color? color = null, Color? shadowColor = null, Vector2? shadowOffset = null, bool allowOverflow = false, TextAlignment alignment = TextAlignment.Left)
+    public CustomText(SpriteBatch sb, SpriteFont font, TextInfo info)
     {
-        ShadowColor = shadowColor ?? Color.Transparent;
-        ShadowOffset = shadowOffset ?? new(-4f, 4f);
-        Scale = scale ?? Vector2.One;
-        Color = color ?? Color.White;
-        AllowOverflow = allowOverflow;
-        Alignment = alignment;
-        Dimension = dimension;
-        Position = position;
-        Padding = padding;
-        Text = text;
+        Text          = info.Text;
+        Position      = info.Position;
+        Dimension     = info.Dimension;
+        Scale         = info.Scale;
+        Padding       = info.Padding;
+        Color         = info.Color;
+        ShadowColor   = info.ShadowColor;
+        ShadowOffset  = info.ShadowOffset;
+        AllowOverflow = info.AllowOverflow;
+        Alignment     = info.Alignment;
+
         Font = font;
-
-        _lineHeight = Font.MeasureString(" ").Y;
         _spriteBatch = sb;
-
+        _lineHeight = Font.MeasureString(" ").Y;
+        
         Refresh();
     }
 
@@ -276,6 +269,9 @@ public partial class CustomText
 
     private string FilterUnsupportedChars(string text)
     {
+        // Normalize newlines.
+        text = text.Replace("\r\n", "\n");
+
         StringBuilder sb = new();
 
         foreach (char c in text)
