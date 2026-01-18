@@ -7,7 +7,7 @@ using Microsoft.Xna.Framework;
 
 namespace CoolCustomText.Source;
 
-public readonly record struct TextInfo
+public readonly struct TextInfo
 {   
     public string Text { get; init; } = string.Empty;
 
