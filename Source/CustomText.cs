@@ -26,6 +26,7 @@ public partial class CustomText
     private bool _allowOverflow;
     private int _startingLineIdx;
 
+
     #region Properties
 
     public SpriteFont Font { get; set; }
@@ -589,7 +590,7 @@ public partial class CustomText
     /// <summary>
     /// Nested class that defines an fx text.
     /// </summary>
-    private class FxText
+    private sealed class FxText
     {
         /// <summary>
         /// The different color palette profiles. Add as many as you want by following the syntax below.
