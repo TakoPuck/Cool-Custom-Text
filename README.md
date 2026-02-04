@@ -48,37 +48,25 @@ Custom texts support newlines (`\n`) and consecutives spaces.
 Here, an example to know everything about custom texts:  
 ```csharp
 SpriteFont font = Content.Load<SpriteFont>("PixellariFont");
-TextInfo info = new()
+_customText = new(_spriteBatch, font)
 {
     Text = """
     Hello stranger, are you <fx 2,0,0,1,0>good</fx> <fx 0,1,0,0,0>?</fx>
     <fx 1,1,0,0,0>*************************************</fx>
     <fx 6,0,1,0,0>This line is scared</fx> <fx 6,0,0,0,1>></fx> <fx 7,0,0,0,0>0123456789</fx> <fx 6,0,0,0,2><</fx>
     """,
-    Position      = new(25f),
-    Padding       = new(5f, 0f),
-    Dimension     = new(284f, 60f),
-    Scale         = new(4f), // Scale the dimension and the padding to match pixels per unit from pixel art UI.
-    Color         = new(255, 244, 196),
-    ShadowColor   = new(128, 85, 111), // By default it's Color.Transparent which disable it.
-    ShadowOffset  = new(-2f, 2f),
+    Position = new(25f),
+    Padding = new(5f, 0f),
+    Dimension = new(284f, 60f),
+    Scale = new(4f), // Scale the dimension and the padding to match pixels per unit from pixel art UI.
+    Color = new(255, 244, 196),
+    ShadowColor = new(128, 85, 111), // By default it's Color.Transparent which disable it.
+    ShadowOffset = new(-2f, 2f),
     AllowOverflow = false, // Should the text overflows outside the box vertically ?
-    Alignment     = TextAlignment.Center
+    Alignment = TextAlignment.Center
 };
 
-_customText = new(_spriteBatch, font, info);
-
-// Refresh should be call when editing the following properties:
-// Font - Text - Dimension - Position - Padding - Scale - Alignment
-_customText.Position = new(50f);
-_customText.Refresh();
-
-// Refresh should not be call when editing the following properties:
-// Color - ShadowColor - ShadowOffset - AllowOverflow - CurrentPageIdx - StartingLineIdx
-_customText.ShadowOffset = new(-4f, 4f);
-
 // If overflow is not allowed, use the following methods/properties to display the text:
-
 // Page by page
 _customText.CurrentPageIdx = 0;
 _customText.NextPage();
@@ -89,10 +77,10 @@ _customText.StartingLineIdx = 0;
 _customText.NextStartingLine();
 _customText.PreviousStartingLine();
 
-/* Another example by copying the previous text info and making some changes. */
+/* Another example */
 
 font = Content.Load<SpriteFont>("SmallPixellariFont");
-info = info with
+_infoCustomText = new(_spriteBatch, font)
 {
     Text = """
     The gray box represents the text dimension.
@@ -107,15 +95,14 @@ info = info with
     <fx Color Palette profile, Wave profile, Shake p., Hang p., Side Step p.>text</fx>
     <fx 3,0,0,0,0>See README.md to learn everything about custom texts.</fx>
     """,
-    Position      = new(40f, 310f),
-    Dimension     = new(1200f, 92f),
-    Scale         = Vector2.One,
-    Padding       = new(0f, 10f),
+    Position = new(40f, 310f),
+    Dimension = new(1200f, 92f),
+    Scale = Vector2.One,
+    Padding = new(0f, 10f),
+    Color = Color.LightYellow,
     AllowOverflow = true,
-    Alignment     = TextAlignment.Center
+    Alignment = TextAlignment.Center
 };
-
-_infoCustomText = new(_spriteBatch, font, info);
 ```
 
 ---
