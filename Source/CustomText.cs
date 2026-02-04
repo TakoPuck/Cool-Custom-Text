@@ -159,19 +159,8 @@ public partial class CustomText
 
     #endregion
 
-    public CustomText(SpriteBatch sb, SpriteFont font, TextInfo info)
+    public CustomText(SpriteBatch sb, SpriteFont font)
     {
-        Text          = info.Text;
-        Position      = info.Position;
-        Dimension     = info.Dimension;
-        Scale         = info.Scale;
-        Padding       = info.Padding;
-        Color         = info.Color;
-        ShadowColor   = info.ShadowColor;
-        ShadowOffset  = info.ShadowOffset;
-        AllowOverflow = info.AllowOverflow;
-        Alignment     = info.Alignment;
-
         Font = font;
         _spriteBatch = sb;
         _lineHeight = Font.MeasureString(" ").Y;
