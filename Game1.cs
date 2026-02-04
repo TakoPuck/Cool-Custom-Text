@@ -58,15 +58,6 @@ namespace CoolCustomText
 
             _customText = new(_spriteBatch, font, info);
 
-            // Refresh should be call when editing the following properties:
-            // Font - Text - Dimension - Position - Padding - Scale - Alignment
-            _customText.Position = new(50f);
-            _customText.Refresh();
-
-            // Refresh should not be call when editing the following properties:
-            // Color - ShadowColor - ShadowOffset - AllowOverflow - CurrentPageIdx - StartingLineIdx
-            _customText.ShadowOffset = new(-4f, 4f);
-
             // If overflow is not allowed, use the following methods/properties to display the text:
 
             // Page by page

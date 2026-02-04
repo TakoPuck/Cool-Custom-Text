@@ -20,50 +20,101 @@ public partial class CustomText
     private float[] _alignedLineStartsX;
     private string[][] _noFxTexts;
     private FxText[] _fxTexts;
-    private float _time;
-    private int _lineCapacity;
+    private int _startingLineIdx;
     private int _currentLineIdx;
     private bool _allowOverflow;
-    private int _startingLineIdx;
+    private int _lineCapacity;
+    private float _time;
+    private bool _isDirty;
+    private TextAlignment _alignment;
+    private Vector2 _dimension;
+    private Vector2 _position;
+    private Vector2 _padding;
+    private SpriteFont _font;
+    private Vector2 _scale;
+    private string _text;
 
 
     #region Properties
 
-    public SpriteFont Font { get; set; }
-
-    public string Text { get; set; }
-
-    public Color Color { get; set; }
-
-    public Color ShadowColor { get; set; }
-
-    public Vector2 ShadowOffset { get; set; }
-
+    /// <summary>
+    /// The alignment of the text within its container.
+    /// The default is Left, but it can also be set to Right or Center.
+    /// </summary>
     /// <remarks>
-    /// Dimension is affected by <see cref="Scale"/>.
+    /// Setting this value marks the container as "dirty" (needs update).
     /// </remarks>
-    public Vector2 Dimension { get; set; }
+    public TextAlignment Alignment { get => _alignment; set { _alignment = value; _isDirty = true; } }
 
     /// <summary>
-    /// The origin of the text is (0,0), so the position refers to the top left position.
+    /// The dimension of the container.
     /// </summary>
-    public Vector2 Position { get; set; }
+    /// <remarks>
+    /// Dimension is affected by <see cref="Scale"/>.
+    /// Also, setting this value marks the container as "dirty" (needs update).
+    /// </remarks>
+    public Vector2 Dimension { get => _dimension; set { _dimension = value; _isDirty = true; } }
 
+    /// <summary>
+    /// The position of the container, with the origin at the top-left corner.
+    /// </summary>
+    /// <remarks>
+    /// Setting this value marks the container as "dirty" (needs update).
+    /// </remarks>
+    public Vector2 Position { get => _position; set { _position = value; _isDirty = true; } }
+
+    /// <summary>
+    /// The padding inside the container for the text.
+    /// </summary>
     /// <remarks>
     /// Padding is affected by <see cref="Scale"/>.
+    /// Also, setting this value marks the container as "dirty" (needs update).
     /// </remarks>
-    public Vector2 Padding { get; set; }
+    public Vector2 Padding { get => _padding; set { _padding = value; _isDirty = true; } }
 
     /// <summary>
     /// Scale of the dimension and the padding, the font size is not affected.
     /// </summary>
     /// <remarks>
-    /// To change the font size, you need to edit your spritefont file.
+    /// To change the font size, a new <see cref="Font"/> must be set.
+    /// Also, setting this value marks the container as "dirty" (needs update).
     /// </remarks>
-    public Vector2 Scale { get; set; }
+    public Vector2 Scale { get => _scale; set { _scale = value; _isDirty = true; } }
 
-    public TextAlignment Alignment { get; set; }
+    /// <summary>
+    /// The font of the text.
+    /// </summary>
+    /// <remarks>
+    /// Setting this value marks the container as "dirty" (needs update).
+    /// </remarks>
+    public SpriteFont Font { get => _font; set { _font = value; _isDirty = true; } }
 
+    /// <summary>
+    /// The text displayed.
+    /// </summary>
+    /// <remarks>
+    /// Setting this value marks the container as "dirty" (needs update).
+    /// </remarks>
+    public string Text { get => _text; set { _text = value; _isDirty = true; } }
+
+    /// <summary>
+    /// The shadow offset of the text.
+    /// </summary>
+    public Vector2 ShadowOffset { get; set; }
+
+    /// <summary>
+    /// The shadow color of the text.
+    /// </summary>
+    public Color ShadowColor { get; set; }
+
+    /// <summary>
+    /// The color of the text.
+    /// </summary>
+    public Color Color { get; set; }
+
+    /// <summary>
+    /// Should the text overflows outside the box vertically ?
+    /// </summary>
     public bool AllowOverflow
     {
         get => _allowOverflow;
@@ -71,9 +122,11 @@ public partial class CustomText
     }
 
     /// <summary>
-    /// Index of the first drawn line.<br></br>
-    /// If <see cref="AllowOverflow"/> is enabled, then the value is always 0.
+    /// Index of the first drawn line.
     /// </summary>
+    /// <remarks>
+    /// If <see cref="AllowOverflow"/> is enabled, then the value is always 0.
+    /// </remarks>
     public int StartingLineIdx
     {
         get => _startingLineIdx;
@@ -81,9 +134,11 @@ public partial class CustomText
     }
 
     /// <summary>
-    /// Index of the current drawn page.<br></br>
-    /// If <see cref="AllowOverflow"/> is enabled, then the value is always 0.
+    /// Index of the current drawn page.
     /// </summary>
+    /// <remarks>
+    /// If <see cref="AllowOverflow"/> is enabled, then the value is always 0.
+    /// </remarks>
     public int CurrentPageIdx
     {
         get => _lineCapacity == 0 ? 0 : StartingLineIdx / _lineCapacity;
@@ -120,11 +175,9 @@ public partial class CustomText
         Font = font;
         _spriteBatch = sb;
         _lineHeight = Font.MeasureString(" ").Y;
-        
-        Refresh();
     }
 
-    #region Private methods
+    #region Private implementation
     #region Regex
 
     [GeneratedRegex(@"<fx\s+(\d+),(\d+),(\d+),(\d+),(\d+)>(.*?)</fx>", RegexOptions.Singleline)]
@@ -137,7 +190,6 @@ public partial class CustomText
     private static partial Regex StartWithFxSpaceRegex();
 
     #endregion
-    #region Output building related
 
     private string BuildOutput(List<string> words, List<int> subwordIdxsExcludingFirst, out List<int> addedChars)
     {
@@ -292,9 +344,6 @@ public partial class CustomText
         return text;
     }
 
-    #endregion
-    #region Output post-building related
-
     private void AdjustFxTextsIndexes(List<int> addedChars)
     {
         if (addedChars.Count == 0) return;
@@ -402,7 +451,6 @@ public partial class CustomText
     }
 
     #endregion
-    #endregion
     #region Draw related
 
     private Vector2 GetNextFxCharPosition(int lineLength, Vector2 nextCharPos, FxText fxText)
@@ -504,39 +552,11 @@ public partial class CustomText
     private bool IsLineDrawable(int lineIdx) => AllowOverflow || ((lineIdx >= StartingLineIdx) && (lineIdx < StartingLineIdx + _lineCapacity));
 
     #endregion
-    #endregion
-    #region Public methods
 
-    public void Draw()
+    private void RefreshIfDirty()
     {
-        _currentLineIdx = 0;
+        if (!_isDirty) return;
 
-        float nextLineStartX = _alignedLineStartsX[0];
-
-        // All no-fx texts are separated by an fx text.
-        for (int i = 0; i < _noFxTexts.Length; i++)
-        {
-            // Draw no-fx lines.
-            nextLineStartX = DrawLines(_noFxTexts[i], nextLineStartX);
-
-            // Then draw fx lines, if any.
-            if (i < _fxTexts.Length)
-            {
-                nextLineStartX = DrawLines(_fxTexts[i].Lines, nextLineStartX, _fxTexts[i]);
-            }
-        }
-    }
-
-    public void Update(float deltaTime)
-    {
-        foreach (var fxText in _fxTexts)
-            fxText.Update(deltaTime);
-
-        _time = (_time + deltaTime) % 3600f;
-    }
-
-    public void Refresh()
-    {
         string safeText = FixStartingSpace(Text); // Workaround: Replace first leading space with a transparent fx tag to avoid crashes...
         string filteredText = FilterUnsupportedChars(safeText);
         string noTagsText = BuildFxTexts(filteredText);
@@ -562,6 +582,43 @@ public partial class CustomText
         StartingLineIdx = 0;
         LineCount = _alignedLineStartsX.Length;
         _lineCapacity = (int)(Dimension.Y * Scale.Y / _lineHeight);
+
+        _isDirty = false;
+    }
+
+    #endregion
+    #region Public implementation
+
+    public void Draw()
+    {
+        RefreshIfDirty();
+
+        _currentLineIdx = 0;
+
+        float nextLineStartX = _alignedLineStartsX[0];
+
+        // All no-fx texts are separated by an fx text.
+        for (int i = 0; i < _noFxTexts.Length; i++)
+        {
+            // Draw no-fx lines.
+            nextLineStartX = DrawLines(_noFxTexts[i], nextLineStartX);
+
+            // Then draw fx lines, if any.
+            if (i < _fxTexts.Length)
+            {
+                nextLineStartX = DrawLines(_fxTexts[i].Lines, nextLineStartX, _fxTexts[i]);
+            }
+        }
+    }
+
+    public void Update(float deltaTime)
+    {
+        RefreshIfDirty();
+
+        foreach (var fxText in _fxTexts)
+            fxText.Update(deltaTime);
+
+        _time = (_time + deltaTime) % 3600f;
     }
 
     public void NextStartingLine()
