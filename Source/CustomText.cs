@@ -166,6 +166,25 @@ public partial class CustomText
         _lineHeight = Font.MeasureString(" ").Y;
     }
 
+    /// <summary>
+    /// Construct a custom text that copy all properties from the given custom text.
+    /// </summary>
+    /// <param name="text">The custom text to copy</param>
+    public CustomText(SpriteBatch sb, SpriteFont font, CustomText text)
+        : this(sb, font)
+    {
+        AllowOverflow = text.AllowOverflow;
+        ShadowOffset = text.ShadowOffset;
+        ShadowColor = text.ShadowColor;
+        Alignment = text.Alignment;
+        Dimension = text.Dimension;
+        Position = text.Position;
+        Padding = text.Padding;
+        Color = text.Color;
+        Scale = text.Scale;
+        Text = text.Text;
+    }
+
     #region Private implementation
     #region Regex
 

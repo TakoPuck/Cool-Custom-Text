@@ -67,10 +67,10 @@ namespace CoolCustomText
             _customText.NextStartingLine();
             _customText.PreviousStartingLine();
 
-            /* Another example */
+            /* Another example where we copy the style of the last custom text */
 
             font = Content.Load<SpriteFont>("SmallPixellariFont");
-            _infoCustomText = new(_spriteBatch, font)
+            _infoCustomText = new(_spriteBatch, font, _customText)
             {
                 Text = """
                 The gray box represents the text dimension.
@@ -89,9 +89,7 @@ namespace CoolCustomText
                 Dimension = new(1200f, 92f),
                 Scale = Vector2.One,
                 Padding = new(0f, 10f),
-                Color = Color.LightYellow,
                 AllowOverflow = true,
-                Alignment = TextAlignment.Center
             };
 
             base.Initialize();
