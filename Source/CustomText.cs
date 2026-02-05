@@ -167,7 +167,7 @@ public partial class CustomText
     }
 
     /// <summary>
-    /// Construct a custom text that copy all properties from the given custom text.
+    /// Construct a custom text that copy the visual style from the given custom text.
     /// </summary>
     /// <param name="text">The custom text to copy</param>
     public CustomText(SpriteBatch sb, SpriteFont font, CustomText text)
@@ -177,12 +177,8 @@ public partial class CustomText
         ShadowOffset = text.ShadowOffset;
         ShadowColor = text.ShadowColor;
         Alignment = text.Alignment;
-        Dimension = text.Dimension;
-        Position = text.Position;
         Padding = text.Padding;
         Color = text.Color;
-        Scale = text.Scale;
-        Text = text.Text;
     }
 
     #region Private implementation
