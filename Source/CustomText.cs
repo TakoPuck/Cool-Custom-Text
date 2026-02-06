@@ -95,7 +95,7 @@ public partial class CustomText
     /// <remarks>
     /// Setting this value marks the container as "dirty" (needs update).
     /// </remarks>
-    public string Text { get => _text; set { _text = value; _isDirty = true; } }
+    public string Text { get => _text; set { if (value != null) { _text = value; _isDirty = true; } } }
 
     /// <summary>
     /// The shadow offset of the text.
@@ -163,6 +163,7 @@ public partial class CustomText
     {
         Font = font;
         _spriteBatch = sb;
+        Text = string.Empty;
         _lineHeight = Font.MeasureString(" ").Y;
     }
 
