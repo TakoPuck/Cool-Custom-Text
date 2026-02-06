@@ -50,7 +50,7 @@ namespace CoolCustomText
                 Dimension = new(284f, 60f),
                 Scale = new(4f), // Scale the dimension and the padding to match pixels per unit from pixel art UI.
                 Color = new(255, 244, 196),
-                ShadowColor = new(128, 85, 111), // By default it's Color.Transparent which disable it.
+                ShadowColor = new(128, 85, 111), // Color.Transparent to disable it.
                 ShadowOffset = new(-2f, 2f),
                 AllowOverflow = false, // Should the text overflows outside the box vertically ?
                 Alignment = TextAlignment.Center
