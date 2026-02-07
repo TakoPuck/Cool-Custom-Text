@@ -19,7 +19,7 @@ public partial class CustomText
 
     private float[] _alignedLineStartsX;
     private string[][] _noFxTexts;
-    private FxText[] _fxTexts;
+    private FxText[] _fxTexts = [];
     private int _startingLineIdx;
     private int _currentLineIdx;
     private bool _allowOverflow;
