@@ -20,13 +20,6 @@
 /processorParam:TextureFormat=Compressed
 /build:PixellariFont.spritefont
 
-#begin SmallPixellariFont.spritefont
-/importer:FontDescriptionImporter
-/processor:FontDescriptionProcessor
-/processorParam:PremultiplyAlpha=True
-/processorParam:TextureFormat=Compressed
-/build:SmallPixellariFont.spritefont
-
 #begin WhitePixel.png
 /importer:TextureImporter
 /processor:TextureProcessor

@@ -73,12 +73,8 @@ public partial class CustomText
     public Vector2 Padding { get => _padding; set { _padding = value; _isDirty = true; } }
 
     /// <summary>
-    /// Scale of the dimension and the padding, the font size is not affected.
+    /// Scale of the dimension, the padding and the font.
     /// </summary>
-    /// <remarks>
-    /// To change the font size, a new <see cref="Font"/> must be set.
-    /// Also, setting this value marks the container as "dirty" (needs update).
-    /// </remarks>
     public Vector2 Scale { get => _scale; set { _scale = value; _isDirty = true; } }
 
     /// <summary>
@@ -206,7 +202,7 @@ public partial class CustomText
         {
             string testLine = line.Length == 0 ? words[i] : line + " " + words[i];
 
-            if (Font.MeasureString(testLine).X > (Dimension.X - 2f * Padding.X) * Scale.X)
+            if (Font.MeasureString(testLine).X > (Dimension.X - 2f * Padding.X))
             {
                 if (i > 0) line.Append('\n');
 
@@ -251,7 +247,7 @@ public partial class CustomText
         {
             word.Append(c);
 
-            if (Font.MeasureString(word).X > (Dimension.X - 2f * Padding.X) * Scale.X)
+            if (Font.MeasureString(word).X > (Dimension.X - 2f * Padding.X))
             {
                 word.Remove(word.Length - 1, 1);
                 words.Add(word.ToString());
@@ -275,7 +271,7 @@ public partial class CustomText
             float wordWidth = Font.MeasureString(word).X;
 
             // Slice words that are longer than a line.
-            if (wordWidth > (Dimension.X - 2f * Padding.X) * Scale.X)
+            if (wordWidth > (Dimension.X - 2f * Padding.X))
             {
                 List<string> longWordsParts = SliceLongWord(word);
                 for (int i = 0; i < longWordsParts.Count; i++)
@@ -443,7 +439,7 @@ public partial class CustomText
 
     private float GetAlignedLineStartX(string line)
     {
-        float lineWidth = Font.MeasureString(line).X;
+        float lineWidth = Font.MeasureString(line).X * Scale.X;
         float boxWidth = (Dimension.X - 2f * Padding.X) * Scale.X;
         float baseX = Position.X + Padding.X * Scale.X;
 
@@ -463,12 +459,12 @@ public partial class CustomText
         return new Vector2()
         {
             X = nextCharPos.X +
-                (fxText.Shake ? MathF.Sin(fxText.Rand.Next()) * fxText.ShakeStrength : 0f) +
-                (fxText.SideStep ? MathF.Sin(_time * fxText.SideStepFrequency + lineLength) * fxText.SideStepAmplitude : 0f),
+                (fxText.Shake ? MathF.Sin(fxText.Rand.Next()) * fxText.ShakeStrength * Scale.X : 0f) +
+                (fxText.SideStep ? MathF.Sin(_time * fxText.SideStepFrequency + lineLength) * fxText.SideStepAmplitude * Scale.X : 0f),
 
             Y = nextCharPos.Y +
-                (fxText.Shake ? MathF.Sin(fxText.Rand.Next()) * fxText.ShakeStrength : 0f) +
-                (fxText.Wave ? MathF.Sin(_time * fxText.WaveFrequency + lineLength) * fxText.WaveAmplitude : 0f)
+                (fxText.Shake ? MathF.Sin(fxText.Rand.Next()) * fxText.ShakeStrength * Scale.Y : 0f) +
+                (fxText.Wave ? MathF.Sin(_time * fxText.WaveFrequency + lineLength) * fxText.WaveAmplitude * Scale.Y : 0f)
         };
     }
 
@@ -491,14 +487,14 @@ public partial class CustomText
             {
                 origin = new(Font.MeasureString(c.ToString()).X / 2f, 0f);
                 rotation = MathHelper.ToRadians(MathF.Sin(_time * fxText.HangFrequency + i) * fxText.HangAmplitude);
-                nextFxCharPos = new(nextFxCharPos.X + origin.X, nextFxCharPos.Y);
+                nextFxCharPos = new(nextFxCharPos.X + origin.X * Scale.X, nextFxCharPos.Y);
             }
 
             Color shadowColor = color == Color ? ShadowColor : new(color.ToVector4() * 0.45f + Vector4.UnitW * 255f * color.A);
             DrawString(c.ToString(), nextFxCharPos, color, rotation, origin, shadowColor);
 
             lineLength++;
-            charWidth = Font.MeasureString(c.ToString()).X;
+            charWidth = (Font.MeasureString(c.ToString()).X + Font.Spacing) * Scale.X;
 
             nextCharPos = new(nextCharPos.X + charWidth, nextCharPos.Y);
             nextFxCharPos = GetNextFxCharPosition(lineLength, nextCharPos, fxText);
@@ -511,9 +507,12 @@ public partial class CustomText
     {
         // Draw text shadow.
         if (ShadowColor != Color.Transparent)
-            _spriteBatch.DrawString(Font, text, position + ShadowOffset, shadowColor ?? ShadowColor, rotation, origin, 1f, SpriteEffects.None, 0f);
+        {
+            Vector2 shadowPos = position + ShadowOffset * Scale;
+            _spriteBatch.DrawString(Font, text, shadowPos, shadowColor ?? ShadowColor, rotation, origin, Scale, SpriteEffects.None, 0f);
+        }
 
-        _spriteBatch.DrawString(Font, text, position, color, rotation, origin, 1f, SpriteEffects.None, 0f);
+        _spriteBatch.DrawString(Font, text, position, color, rotation, origin, Scale, SpriteEffects.None, 0f);
     }
 
     private float DrawLines(string[] lines, float nextLineStartX, FxText fxText = null)
@@ -528,7 +527,7 @@ public partial class CustomText
             nextCharPos = new()
             {
                 X = (i == 0) ? initialLineStartX : _alignedLineStartsX[_currentLineIdx],
-                Y = Position.Y + Padding.Y * Scale.Y + _lineHeight * (_currentLineIdx - StartingLineIdx)
+                Y = Position.Y + Padding.Y * Scale.Y + _lineHeight * (_currentLineIdx - StartingLineIdx) * Scale.Y
             };
 
             if (IsLineDrawable(_currentLineIdx) && lines[i] != string.Empty)
@@ -551,7 +550,7 @@ public partial class CustomText
 
         float lastLineStartX = (lines.Length == 1) ? initialLineStartX : _alignedLineStartsX[_currentLineIdx];
 
-        return lastLineStartX + Font.MeasureString(lines[^1]).X;
+        return lastLineStartX + Font.MeasureString(lines[^1]).X * Scale.X;
     }
 
     private bool IsLineDrawable(int lineIdx) => AllowOverflow || ((lineIdx >= StartingLineIdx) && (lineIdx < StartingLineIdx + _lineCapacity));
@@ -586,7 +585,7 @@ public partial class CustomText
 
         StartingLineIdx = 0;
         LineCount = _alignedLineStartsX.Length;
-        _lineCapacity = (int)(Dimension.Y * Scale.Y / _lineHeight);
+        _lineCapacity = (int)(Dimension.Y / _lineHeight);
 
         _isDirty = false;
     }
@@ -676,7 +675,7 @@ public partial class CustomText
         private readonly static Dictionary<int, Tuple<float, float>> WaveProfils = new()
         {
             // Wave Frequency, Wave Amplitude
-            [1] = new(8f, 8f)
+            [1] = new(8f, 2f)
         };
 
         /// <summary>
@@ -685,7 +684,7 @@ public partial class CustomText
         private readonly static Dictionary<int, Tuple<float, float>> ShakeProfils = new()
         {
             // Shake Interval, Shake Strength
-            [1] = new(0.06f, 3f),
+            [1] = new(0.06f, 0.75f),
         };
 
         /// <summary>
@@ -694,7 +693,7 @@ public partial class CustomText
         private readonly static Dictionary<int, Tuple<float, float>> HangProfils = new()
         {
             // Hang Frequency, Hang Amplitude
-            [1] = new(6f, 12f)
+            [1] = new(6f, 9f)
         };
 
         /// <summary>
@@ -703,8 +702,8 @@ public partial class CustomText
         private readonly static Dictionary<int, Tuple<float, float>> SideStepProfils = new()
         {
             // Side Step Frequency, Side Step Amplitude
-            [1] = new(6f, 12f),
-            [2] = new(6f, -12f)
+            [1] = new(6f, 3f),
+            [2] = new(6f, -3f)
         };
 
 

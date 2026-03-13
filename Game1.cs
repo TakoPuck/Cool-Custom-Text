@@ -42,16 +42,16 @@ namespace CoolCustomText
             {
                 Text = """
                 Hello stranger, are you <fx 2,0,0,1,0>good</fx> <fx 0,1,0,0,0>?</fx>
-                <fx 1,1,0,0,0>*************************************</fx>
-                <fx 6,0,1,0,0>This line is scared</fx> <fx 6,0,0,0,1>></fx> <fx 7,0,0,0,0>0123456789</fx> <fx 6,0,0,0,2><</fx>
+                <fx 1,1,0,0,0>**********************************</fx>
+                <fx 6,0,1,0,0>This is scary</fx>    <fx 6,0,0,0,1>></fx> <fx 7,0,0,0,0>0123456789</fx> <fx 6,0,0,0,2><</fx>
                 """,
                 Position = new(25f),
                 Padding = new(5f, 0f),
                 Dimension = new(284f, 60f),
-                Scale = new(4f), // Scale the dimension and the padding to match pixels per unit from pixel art UI.
+                Scale = new(4f), // Scale the dimension, the padding and the font
                 Color = new(255, 244, 196),
-                ShadowColor = new(128, 85, 111), // Color.Transparent to disable it.
-                ShadowOffset = new(-2f, 2f),
+                ShadowColor = new(128, 85, 111), // Color.Transparent to disable it
+                ShadowOffset = new(-1f, 1f),
                 AllowOverflow = false, // Should the text overflows outside the box vertically ?
                 Alignment = TextAlignment.Center
             };
@@ -69,11 +69,11 @@ namespace CoolCustomText
 
             /* Another example where we copy the style of the last custom text */
 
-            font = Content.Load<SpriteFont>("SmallPixellariFont");
+            font = Content.Load<SpriteFont>("PixellariFont");
             _infoCustomText = new(_spriteBatch, font, _customText)
             {
                 Text = """
-                The gray box represents the text dimension.
+                The gray box represents the scaled text dimension.
                 The text itself is rendered inside the green box because padding is applied.
                 Overflow is enabled here, allowing the text to exceed the vertical bounds.
                 All lines in this example are centered.
@@ -85,9 +85,9 @@ namespace CoolCustomText
                 <fx Color Palette profile, Wave profile, Shake p., Hang p., Side Step p.>text</fx>
                 <fx 3,0,0,0,0>See README.md to learn everything about custom texts.</fx>
                 """,
-                Position = new(40f, 310f),
-                Dimension = new(1200f, 92f),
-                Scale = Vector2.One,
+                Position = new(10f, 280f),
+                Dimension = new(660f, 92f),
+                Scale = new(1.9f),
                 Padding = new(0f, 10f),
                 AllowOverflow = true,
             };
