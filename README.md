@@ -4,7 +4,7 @@
 
 A small project that shows a cool way to use SpriteFont in MonoGame.  
 Features: 
-* Render text inside a fully customizable box (dimension scaling and padding)
+* Render text inside a configurable box (dimension and padding) with both affected by a scale
 * Apply special FX tags to style or animate parts of your text
 * Customizable text shadow (color and offset)
 * Handle text overflow seamlessly, with support for line-by-line or page-by-page display modes
@@ -14,9 +14,10 @@ Features:
 
 ## Changelog
 
-1. Overflow managing
+1. Overflow managing (page by page or line by line)
 2. Side Step effect
-3. Text alignment
+3. Text alignment (left, center or right)
+4. Text is now affected by scaling (previously only the box was)
 
 ---
 
@@ -52,16 +53,16 @@ _customText = new(_spriteBatch, font)
 {
     Text = """
     Hello stranger, are you <fx 2,0,0,1,0>good</fx> <fx 0,1,0,0,0>?</fx>
-    <fx 1,1,0,0,0>*************************************</fx>
-    <fx 6,0,1,0,0>This line is scared</fx> <fx 6,0,0,0,1>></fx> <fx 7,0,0,0,0>0123456789</fx> <fx 6,0,0,0,2><</fx>
+    <fx 1,1,0,0,0>**********************************</fx>
+    <fx 6,0,1,0,0>This is scary</fx>    <fx 6,0,0,0,1>></fx> <fx 7,0,0,0,0>0123456789</fx> <fx 6,0,0,0,2><</fx>
     """,
     Position = new(25f),
     Padding = new(5f, 0f),
     Dimension = new(284f, 60f),
-    Scale = new(4f), // Scale the dimension and the padding to match pixels per unit from pixel art UI.
+    Scale = new(4f), // Scale the dimension, the padding and the font
     Color = new(255, 244, 196),
-    ShadowColor = new(128, 85, 111), // Color.Transparent to disable it.
-    ShadowOffset = new(-2f, 2f),
+    ShadowColor = new(128, 85, 111), // Color.Transparent to disable it
+    ShadowOffset = new(-1f, 1f),
     AllowOverflow = false, // Should the text overflows outside the box vertically ?
     Alignment = TextAlignment.Center
 };
@@ -79,11 +80,11 @@ _customText.PreviousStartingLine();
 
 /* Another example where we copy the style of the last custom text */
 
-font = Content.Load<SpriteFont>("SmallPixellariFont");
+font = Content.Load<SpriteFont>("PixellariFont");
 _infoCustomText = new(_spriteBatch, font, _customText)
 {
     Text = """
-    The gray box represents the text dimension.
+    The gray box represents the scaled text dimension.
     The text itself is rendered inside the green box because padding is applied.
     Overflow is enabled here, allowing the text to exceed the vertical bounds.
     All lines in this example are centered.
@@ -95,9 +96,9 @@ _infoCustomText = new(_spriteBatch, font, _customText)
     <fx Color Palette profile, Wave profile, Shake p., Hang p., Side Step p.>text</fx>
     <fx 3,0,0,0,0>See README.md to learn everything about custom texts.</fx>
     """,
-    Position = new(40f, 310f),
-    Dimension = new(1200f, 92f),
-    Scale = Vector2.One,
+    Position = new(10f, 280f),
+    Dimension = new(660f, 92f),
+    Scale = new(1.9f),
     Padding = new(0f, 10f),
     AllowOverflow = true,
 };
@@ -126,7 +127,7 @@ private readonly static Dictionary<int, Tuple<ColorPalette, float>> ColorProfile
 private readonly static Dictionary<int, Tuple<float, float>> WaveProfils = new()
 {
     // Wave Frequency, Wave Amplitude
-    [1] = new(8f, 8f),
+    [1] = new(8f, 2f),
     // New profile ! [2] = ...
 };
 
@@ -134,7 +135,7 @@ private readonly static Dictionary<int, Tuple<float, float>> WaveProfils = new()
 private readonly static Dictionary<int, Tuple<float, float>> ShakeProfils = new()
 {
     // Shake Interval, Shake Strength
-    [1] = new(0.06f, 3f),
+    [1] = new(0.06f, 0.75f),
     // New profile ! [2] = ...
 };
 
@@ -142,7 +143,7 @@ private readonly static Dictionary<int, Tuple<float, float>> ShakeProfils = new(
 private readonly static Dictionary<int, Tuple<float, float>> HangProfils = new()
 {
     // Hang Frequency, Hang Amplitude
-    [1] = new(6f, 12f),
+    [1] = new(6f, 9f),
     // New profile ! [2] = ....
 };
 
@@ -150,8 +151,8 @@ private readonly static Dictionary<int, Tuple<float, float>> HangProfils = new()
 private readonly static Dictionary<int, Tuple<float, float>> SideStepProfils = new()
 {
     // Side Step Frequency, Side Step Amplitude
-    [1] = new(6f, 12f),
-    [2] = new(6f, -12f)
+    [1] = new(6f, 3f),
+    [2] = new(6f, -3f)
 };
 ```
 
